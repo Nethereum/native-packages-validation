@@ -21,7 +21,7 @@ jobs:
             name: Windows x64
           - os: macos-15
             name: macOS ARM64
-          - os: macos-13
+          - os: macos-13-large
             name: macOS x64
 
     runs-on: ${{ matrix.os }}
