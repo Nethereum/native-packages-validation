@@ -1,0 +1,48 @@
+name: Validate Native Packages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: Linux x64
+          - os: ubuntu-24.04-arm
+            name: Linux ARM64
+          - os: windows-latest
+            name: Windows x64
+          - os: macos-15
+            name: macOS ARM64
+          - os: macos-13
+            name: macOS x64
+
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore packages
+        run: dotnet restore test/BlsHerumi.Tests/ && dotnet restore test/RapidSnark.Tests/ && dotnet restore test/CircomWitnessCalc.Tests/
+
+      - name: Test BLS Herumi
+        run: dotnet test test/BlsHerumi.Tests/ --no-restore --verbosity normal
+
+      - name: Test RapidSnark
+        run: dotnet test test/RapidSnark.Tests/ --no-restore --verbosity normal
+
+      - name: Test CircomWitnessCalc
+        run: dotnet test test/CircomWitnessCalc.Tests/ --no-restore --verbosity normal
